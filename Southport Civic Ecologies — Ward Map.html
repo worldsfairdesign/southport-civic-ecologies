@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<!-- saved from url=(0267)file:///C:/Users/world/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/local-agent-mode-sessions/59f00d1d-b669-4c7a-b8b5-f33d33ccd473/98d41a5c-33ad-4f1f-93f2-ae2bd11b1a50/local_9f9c1885-d916-4c97-a219-44b1a5a8a8d9/outputs/southport-ward-map.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Southport Civic Ecologies — Ward Map</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f0f4f8; color: #1e293b; font-size: 14px; }
+header { background: #1e293b; color: white; padding: 14px 24px; }
+header h1 { font-size: 17px; font-weight: 700; }
+header p { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+.layout { display: flex; gap: 16px; padding: 16px; min-height: calc(100vh - 56px); }
+.left { display: flex; flex-direction: column; gap: 12px; width: 420px; flex-shrink: 0; }
+.right { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.card { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.card-title { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+
+.metric-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.mtab { padding: 5px 11px; border: 1.5px solid #e2e8f0; border-radius: 16px; cursor: pointer; font-size: 12px; color: #475569; background: white; transition: all 0.15s; white-space: nowrap; }
+.mtab:hover { border-color: #3b82f6; color: #3b82f6; }
+.mtab.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+#map-svg { width: 100%; display: block; }
+.ward-circle { cursor: pointer; }
+.ward-circle:hover circle { opacity: 0.85; }
+
+.legend { margin-top: 8px; }
+.legend-gradient { height: 10px; border-radius: 5px; }
+.legend-labels { display: flex; justify-content: space-between; font-size: 10px; color: #64748b; margin-top: 3px; }
+.legend-desc { font-size: 11px; color: #64748b; margin-top: 6px; line-height: 1.4; }
+.schematic-note { font-size: 10px; color: #94a3b8; font-style: italic; text-align: center; margin-top: 6px; }
+
+.bar-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; cursor: pointer; border-radius: 4px; padding: 2px 4px; transition: background 0.1s; }
+.bar-item:hover { background: #f8fafc; }
+.bar-item.selected { background: #eff6ff; }
+.bar-name { width: 140px; font-size: 11px; color: #475569; text-align: right; flex-shrink: 0; line-height: 1.2; }
+.bar-track { flex: 1; height: 18px; background: #f1f5f9; border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.bar-val { width: 36px; font-size: 11px; color: #334155; font-weight: 600; text-align: right; flex-shrink: 0; }
+.southport-avg { border-top: 2px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; }
+.southport-avg .bar-name { color: #94a3b8; font-style: italic; }
+
+.info-headline { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.info-headline h2 { font-size: 16px; font-weight: 700; }
+.info-headline .pop { font-size: 12px; color: #64748b; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.info-cell { background: #f8fafc; border-radius: 6px; padding: 7px 9px; border: 1px solid #e2e8f0; }
+.info-cell .label { font-size: 10px; color: #94a3b8; margin-bottom: 2px; }
+.info-cell .val { font-size: 15px; font-weight: 700; color: #1e293b; }
+.info-cell .diff { font-size: 10px; margin-top: 1px; }
+.diff.pos { color: #16a34a; }
+.diff.neg { color: #dc2626; }
+.diff.neu { color: #94a3b8; }
+.placeholder { color: #94a3b8; font-size: 13px; text-align: center; padding: 20px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Southport Civic Ecologies — Ward Map</h1>
+  <p>2021 Census data · 12 wards · Select a metric to explore</p>
+</header>
+
+<div class="layout">
+  <div class="left">
+    <div class="card">
+      <div class="card-title">Choose Metric</div>
+      <div class="metric-tabs" id="metricTabs"><button class="mtab active" onclick="selectMetric(&#39;depriv2plus&#39;)">Deprivation (2+ dims)</button><button class="mtab" onclick="selectMetric(&#39;employed&#39;)">Employment rate</button><button class="mtab" onclick="selectMetric(&#39;noCar&#39;)">No car/van</button><button class="mtab" onclick="selectMetric(&#39;privateRent&#39;)">Private renting</button><button class="mtab" onclick="selectMetric(&#39;bornOutsideUK&#39;)">Born outside UK</button><button class="mtab" onclick="selectMetric(&#39;aged75plus&#39;)">Aged 75+</button><button class="mtab" onclick="selectMetric(&#39;aged0to14&#39;)">Aged 0–14</button><button class="mtab" onclick="selectMetric(&#39;lgbplus&#39;)">LGB+</button><button class="mtab" onclick="selectMetric(&#39;ownsOutright&#39;)">Owns outright</button><button class="mtab" onclick="selectMetric(&#39;socialRent&#39;)">Social renting</button><button class="mtab" onclick="selectMetric(&#39;flat&#39;)">Flats/apartments</button><button class="mtab" onclick="selectMetric(&#39;white&#39;)">White ethnicity</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Ward Map <span style="font-weight:400;color:#94a3b8;font-size:10px">(schematic)</span></div>
+      <svg id="map-svg" viewBox="0 0 380 500">
+      <g class="ward-circle" onclick="selectWard(0)">
+        <circle cx="255" cy="65" r="28.327685396800376" fill="#dbafbc" stroke="white" stroke-width="1.5"></circle>
+        <text x="255" y="63" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">Crossens</text>
+        <text x="255" y="74" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">17.1%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(1)">
+        <circle cx="75" cy="110" r="28.800535897233825" fill="#dbd6e8" stroke="white" stroke-width="1.5"></circle>
+        <text x="75" y="108" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">Marshside</text>
+        <text x="75" y="119" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">13.5%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(2)">
+        <circle cx="175" cy="195" r="28.928205532350855" fill="#db8993" stroke="white" stroke-width="1.5"></circle>
+        <text x="175" y="193" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">Hesketh Pk</text>
+        <text x="175" y="204" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">20.5%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(3)">
+        <circle cx="68" cy="255" r="29.811490267160533" fill="#dc2626" stroke="white" stroke-width="1.5"></circle>
+        <text x="68" y="253" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">Waterfront</text>
+        <text x="68" y="264" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">29.5%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(4)">
+        <circle cx="300" cy="210" r="29.134368350539837" fill="#db9eaa" stroke="white" stroke-width="1.5"></circle>
+        <text x="300" y="208" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">High Park</text>
+        <text x="300" y="219" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">18.6%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(5)">
+        <circle cx="325" cy="285" r="28.815667113247695" fill="#dbaab8" stroke="white" stroke-width="1.5"></circle>
+        <text x="325" y="283" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">Meols Cop</text>
+        <text x="325" y="294" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">17.5%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(6)">
+        <circle cx="105" cy="325" r="34" fill="#dbcee0" stroke="white" stroke-width="1.5"></circle>
+        <text x="105" y="323" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">Birkdale</text>
+        <text x="105" y="334" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">14.2%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(7)">
+        <circle cx="215" cy="340" r="29.681929230041767" fill="#dc7b83" stroke="white" stroke-width="1.5"></circle>
+        <text x="215" y="338" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">S. South</text>
+        <text x="215" y="349" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">21.8%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(8)">
+        <circle cx="315" cy="370" r="31.146820080384586" fill="#dba6b3" stroke="white" stroke-width="1.5"></circle>
+        <text x="315" y="368" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">S. Kew</text>
+        <text x="315" y="379" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">17.9%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(9)">
+        <circle cx="115" cy="415" r="29.080463393490426" fill="#dbbac9" stroke="white" stroke-width="1.5"></circle>
+        <text x="115" y="413" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">Hillside</text>
+        <text x="115" y="424" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">16.1%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(10)">
+        <circle cx="95" cy="470" r="27.497359918039244" fill="#dbeafe" stroke="white" stroke-width="1.5"></circle>
+        <text x="95" y="468" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">Ain. West</text>
+        <text x="95" y="479" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">11.7%</text>
+      </g>
+      <g class="ward-circle" onclick="selectWard(11)">
+        <circle cx="265" cy="450" r="27.988178737489164" fill="#dc7981" stroke="white" stroke-width="1.5"></circle>
+        <text x="265" y="448" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">Ain. East</text>
+        <text x="265" y="459" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#334155" style="pointer-events:none">22.0%</text>
+      </g></svg>
+      <div class="legend">
+        <div class="legend-gradient" id="legendGrad" style="background: linear-gradient(to right, rgb(219, 234, 254), rgb(220, 38, 38));"></div>
+        <div class="legend-labels"><span id="lgMin">11.7%</span><span id="lgMid">20.6%</span><span id="lgMax">29.5%</span></div>
+        <div class="legend-desc" id="legendDesc">% of households deprived in 2 or more dimensions</div>
+      </div>
+      <p class="schematic-note">Positions are approximate. Click a ward for details.</p>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="card" style="flex:1">
+      <div class="card-title" id="chartTitle">Deprivation (2+ dims) by ward</div>
+      <div id="barChart"><div class="bar-item" onclick="selectWard(3)">
+      <div class="bar-name">Southport Waterfront</div>
+      <div class="bar-track"><div class="bar-fill" style="width:95.2%;background:#dc2626"></div></div>
+      <div class="bar-val">29.5%</div>
+    </div><div class="bar-item" onclick="selectWard(11)">
+      <div class="bar-name">Ainsdale East</div>
+      <div class="bar-track"><div class="bar-fill" style="width:71.0%;background:#dc7981"></div></div>
+      <div class="bar-val">22.0%</div>
+    </div><div class="bar-item" onclick="selectWard(7)">
+      <div class="bar-name">Southport South</div>
+      <div class="bar-track"><div class="bar-fill" style="width:70.4%;background:#dc7b83"></div></div>
+      <div class="bar-val">21.8%</div>
+    </div><div class="bar-item" onclick="selectWard(2)">
+      <div class="bar-name">Hesketh Park</div>
+      <div class="bar-track"><div class="bar-fill" style="width:66.2%;background:#db8993"></div></div>
+      <div class="bar-val">20.5%</div>
+    </div><div class="bar-item" onclick="selectWard(4)">
+      <div class="bar-name">Southport High Park</div>
+      <div class="bar-track"><div class="bar-fill" style="width:60.0%;background:#db9eaa"></div></div>
+      <div class="bar-val">18.6%</div>
+    </div><div class="bar-item" onclick="selectWard(8)">
+      <div class="bar-name">Southport Kew</div>
+      <div class="bar-track"><div class="bar-fill" style="width:57.8%;background:#dba6b3"></div></div>
+      <div class="bar-val">17.9%</div>
+    </div><div class="bar-item" onclick="selectWard(5)">
+      <div class="bar-name">Meols Cop</div>
+      <div class="bar-track"><div class="bar-fill" style="width:56.5%;background:#dbaab8"></div></div>
+      <div class="bar-val">17.5%</div>
+    </div><div class="bar-item" onclick="selectWard(0)">
+      <div class="bar-name">Crossens</div>
+      <div class="bar-track"><div class="bar-fill" style="width:55.2%;background:#dbafbc"></div></div>
+      <div class="bar-val">17.1%</div>
+    </div><div class="bar-item" onclick="selectWard(9)">
+      <div class="bar-name">Hillside</div>
+      <div class="bar-track"><div class="bar-fill" style="width:52.0%;background:#dbbac9"></div></div>
+      <div class="bar-val">16.1%</div>
+    </div><div class="bar-item" onclick="selectWard(6)">
+      <div class="bar-name">Birkdale</div>
+      <div class="bar-track"><div class="bar-fill" style="width:45.8%;background:#dbcee0"></div></div>
+      <div class="bar-val">14.2%</div>
+    </div><div class="bar-item" onclick="selectWard(1)">
+      <div class="bar-name">Marshside</div>
+      <div class="bar-track"><div class="bar-fill" style="width:43.6%;background:#dbd6e8"></div></div>
+      <div class="bar-val">13.5%</div>
+    </div><div class="bar-item" onclick="selectWard(10)">
+      <div class="bar-name">Ainsdale West</div>
+      <div class="bar-track"><div class="bar-fill" style="width:37.8%;background:#dbeafe"></div></div>
+      <div class="bar-val">11.7%</div>
+    </div><div class="bar-item southport-avg">
+    <div class="bar-name">Southport avg.</div>
+    <div class="bar-track"><div class="bar-fill" style="width:61.3%;background:#94a3b8"></div></div>
+    <div class="bar-val">19.0%</div>
+  </div></div>
+    </div>
+    <div class="card" id="infoCard"><div class="placeholder">Click a ward on the map or chart to see details</div></div>
+  </div>
+</div>
+
+<script>
+const WARDS = [
+  { name: "Crossens",             pop: 6691,  income: null,  ax: 255, ay: 65  },
+  { name: "Marshside",            pop: 7191,  income: 46000, ax: 75,  ay: 110 },
+  { name: "Hesketh Park",         pop: 7326,  income: 37700, ax: 175, ay: 195 },
+  { name: "Southport Waterfront", pop: 8260,  income: 33700, ax: 68,  ay: 255 },
+  { name: "Southport High Park",  pop: 7544,  income: 39400, ax: 300, ay: 210 },
+  { name: "Meols Cop",            pop: 7207,  income: 42200, ax: 325, ay: 285 },
+  { name: "Birkdale",             pop: 12689, income: null,  ax: 105, ay: 325 },
+  { name: "Southport South",      pop: 8123,  income: 38900, ax: 215, ay: 340 },
+  { name: "Southport Kew",        pop: 9672,  income: null,  ax: 315, ay: 370 },
+  { name: "Hillside",             pop: 7487,  income: 43700, ax: 115, ay: 415 },
+  { name: "Ainsdale West",        pop: 5813,  income: 51700, ax: 95,  ay: 470 },
+  { name: "Ainsdale East",        pop: 6332,  income: 36900, ax: 265, ay: 450 },
+];
+
+const SOUTHPORT = {
+  depriv2plus: 19.0, employed: 52.2, noCar: 23.3, privateRent: 23.5,
+  bornOutsideUK: 9.0, aged75plus: 12.8, aged0to14: 14.7, lgbplus: 2.4,
+  ownsOutright: 40.3, socialRent: 7.6, flat: 26.2, white: 95.0
+};
+
+const WARD_DATA = {
+  depriv2plus:    [17.1, 13.5, 20.5, 29.5, 18.6, 17.5, 14.2, 21.8, 17.9, 16.1, 11.7, 22.0],
+  employed:       [51.2, 52.7, 39.9, 48.7, 60.2, 60.5, 43.7, 58.5, 57.9, 58.9, 44.6, 52.1],
+  noCar:          [15.2, 13.2, 28.2, 48.5, 19.9, 18.1, 20.3, 30.0, 19.1, 15.7, 10.4, 23.5],
+  privateRent:    [12.1, 11.2, 19.2, 56.6, 22.4, 21.5, 19.5, 41.2, 19.1, 14.9,  5.8, 14.0],
+  bornOutsideUK:  [ 4.7,  3.7,  7.3, 25.5,  8.3,  8.6,  5.6, 15.1,  8.2,  4.8,  4.7,  5.3],
+  aged75plus:     [15.4, 15.0, 23.0, 12.9,  7.3,  6.6, 20.6,  6.9,  8.5,  8.7, 19.2, 11.2],
+  aged0to14:      [14.0, 14.4, 10.8, 10.1, 19.9, 18.3, 10.5, 17.0, 18.2, 16.7, 11.4, 16.9],
+  lgbplus:        [ 1.7,  1.5,  2.2,  3.9,  2.7,  2.6,  1.9,  4.0,  2.6,  2.5,  1.1,  2.4],
+  ownsOutright:   [52.6, 52.4, 46.0, 22.3, 33.4, 33.8, 49.8, 27.3, 36.6, 42.9, 63.7, 36.6],
+  socialRent:     [ 3.6,  2.5, 14.8,  8.2,  8.9,  6.5,  5.6,  5.4,  8.7,  5.7,  1.1, 19.5],
+  flat:           [ 1.7,  6.5, 52.3, 77.2,  6.6, 12.6, 43.2, 35.4, 10.1,  5.0,  4.8, 15.9],
+  white:          [97.4, 97.6, 95.8, 91.2, 95.7, 95.6, 96.2, 91.7, 93.0, 96.3, 96.1, 96.3],
+};
+
+const METRICS = [
+  { key: "depriv2plus",   label: "Deprivation (2+ dims)",  color: "#dc2626", loPref: true,  desc: "% of households deprived in 2 or more dimensions" },
+  { key: "employed",      label: "Employment rate",        color: "#16a34a", loPref: false, desc: "% economically active and in employment" },
+  { key: "noCar",         label: "No car/van",             color: "#d97706", loPref: true,  desc: "% of households with no car or van" },
+  { key: "privateRent",   label: "Private renting",        color: "#7c3aed", loPref: true,  desc: "% in private rented or living rent-free" },
+  { key: "bornOutsideUK", label: "Born outside UK",        color: "#0891b2", loPref: false, desc: "% of residents born outside the United Kingdom" },
+  { key: "aged75plus",    label: "Aged 75+",               color: "#64748b", loPref: false, desc: "% of population aged 75 and over" },
+  { key: "aged0to14",     label: "Aged 0–14",              color: "#15803d", loPref: false, desc: "% of population aged 0 to 14" },
+  { key: "lgbplus",       label: "LGB+",                   color: "#ec4899", loPref: false, desc: "% identifying as LGB+" },
+  { key: "ownsOutright",  label: "Owns outright",          color: "#2563eb", loPref: false, desc: "% of households that own their home outright" },
+  { key: "socialRent",    label: "Social renting",         color: "#9333ea", loPref: false, desc: "% in social rented housing" },
+  { key: "flat",          label: "Flats/apartments",       color: "#0f766e", loPref: false, desc: "% of dwellings that are flats or apartments" },
+  { key: "white",         label: "White ethnicity",        color: "#475569", loPref: false, desc: "% identifying as White ethnicity" },
+];
+
+let selectedMetric = "depriv2plus";
+let selectedWard = null;
+
+function lerpColor(a, b, t) {
+  const ah = parseInt(a.slice(1),16), bh = parseInt(b.slice(1),16);
+  const ar=[ah>>16,(ah>>8)&0xff,ah&0xff], br=[bh>>16,(bh>>8)&0xff,bh&0xff];
+  return '#'+ar.map((v,i)=>Math.round(v+(br[i]-v)*t).toString(16).padStart(2,'0')).join('');
+}
+function wardColor(val, min, max, key) {
+  const m = METRICS.find(x=>x.key===key);
+  const t = max===min ? 0.5 : (val-min)/(max-min);
+  return lerpColor('#dbeafe', m.color, t);
+}
+
+function renderTabs() {
+  document.getElementById('metricTabs').innerHTML = METRICS.map(m =>
+    `<button class="mtab${m.key===selectedMetric?' active':''}" onclick="selectMetric('${m.key}')">${m.label}</button>`
+  ).join('');
+}
+
+function shortenName(name) {
+  return { "Southport Waterfront":"Waterfront", "Southport High Park":"High Park",
+           "Southport South":"S. South", "Southport Kew":"S. Kew",
+           "Ainsdale West":"Ain. West", "Ainsdale East":"Ain. East",
+           "Hesketh Park":"Hesketh Pk" }[name] || name;
+}
+
+function renderMap() {
+  const svg = document.getElementById('map-svg');
+  const vals = WARD_DATA[selectedMetric];
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const m = METRICS.find(x=>x.key===selectedMetric);
+
+  document.getElementById('legendGrad').style.background = `linear-gradient(to right,#dbeafe,${m.color})`;
+  document.getElementById('lgMin').textContent = min.toFixed(1)+'%';
+  document.getElementById('lgMid').textContent = ((min+max)/2).toFixed(1)+'%';
+  document.getElementById('lgMax').textContent = max.toFixed(1)+'%';
+  document.getElementById('legendDesc').textContent = m.desc;
+
+  let html = '';
+  WARDS.forEach((w, i) => {
+    const val = vals[i];
+    const fill = wardColor(val, min, max, selectedMetric);
+    const isSelected = selectedWard === i;
+    const r = 22 + (w.pop / 12689) * 12;
+    const strokeW = isSelected ? 3 : 1.5;
+    const strokeC = isSelected ? '#1e293b' : 'white';
+    html += `
+      <g class="ward-circle" onclick="selectWard(${i})">
+        <circle cx="${w.ax}" cy="${w.ay}" r="${r}" fill="${fill}" stroke="${strokeC}" stroke-width="${strokeW}"/>
+        <text x="${w.ax}" y="${w.ay-2}" text-anchor="middle" dominant-baseline="middle"
+              font-size="9" fill="#1e293b" font-weight="600" style="pointer-events:none">${shortenName(w.name)}</text>
+        <text x="${w.ax}" y="${w.ay+9}" text-anchor="middle" dominant-baseline="middle"
+              font-size="9" fill="#334155" style="pointer-events:none">${val.toFixed(1)}%</text>
+      </g>`;
+  });
+  svg.innerHTML = html;
+}
+
+function renderBarChart() {
+  const vals = WARD_DATA[selectedMetric];
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const avg = SOUTHPORT[selectedMetric];
+  const maxVal = Math.max(...vals, avg) * 1.05;
+  const sorted = WARDS.map((w,i)=>({w,i,val:vals[i]})).sort((a,b)=>b.val-a.val);
+  document.getElementById('chartTitle').textContent = METRICS.find(x=>x.key===selectedMetric).label + ' by ward';
+
+  let html = sorted.map(({w,i,val}) => {
+    const pct = (val/maxVal*100).toFixed(1);
+    return `<div class="bar-item${selectedWard===i?' selected':''}" onclick="selectWard(${i})">
+      <div class="bar-name">${w.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${wardColor(val,min,max,selectedMetric)}"></div></div>
+      <div class="bar-val">${val.toFixed(1)}%</div>
+    </div>`;
+  }).join('');
+
+  const avgPct = (avg/maxVal*100).toFixed(1);
+  html += `<div class="bar-item southport-avg">
+    <div class="bar-name">Southport avg.</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${avgPct}%;background:#94a3b8"></div></div>
+    <div class="bar-val">${avg.toFixed(1)}%</div>
+  </div>`;
+  document.getElementById('barChart').innerHTML = html;
+}
+
+function renderWardInfo() {
+  const card = document.getElementById('infoCard');
+  if (selectedWard === null) {
+    card.innerHTML = '<div class="placeholder">Click a ward on the map or chart to see details</div>';
+    return;
+  }
+  const w = WARDS[selectedWard], i = selectedWard;
+  function cell(key) {
+    const m = METRICS.find(x=>x.key===key);
+    const v = WARD_DATA[key][i], avg = SOUTHPORT[key];
+    const diff = v - avg, abs = Math.abs(diff).toFixed(1);
+    let cls='neu', txt='— at avg';
+    if (Math.abs(diff)>0.4) {
+      const good = m.loPref ? diff<0 : diff>0;
+      cls = good ? 'pos' : 'neg';
+      txt = (diff>0?'▲':'▼')+' '+abs+'% vs avg';
+    }
+    return `<div class="info-cell">
+      <div class="label">${m.label}</div>
+      <div class="val">${v.toFixed(1)}%</div>
+      <div class="diff ${cls}">${txt}</div>
+    </div>`;
+  }
+  const inc = w.income ? '£'+w.income.toLocaleString() : 'income N/A';
+  card.innerHTML = `
+    <div class="info-headline">
+      <h2>${w.name}</h2>
+      <div class="pop">Pop. ${w.pop.toLocaleString()} · ${inc}</div>
+    </div>
+    <div class="info-grid">
+      ${cell('depriv2plus')}${cell('employed')}${cell('noCar')}
+      ${cell('privateRent')}${cell('bornOutsideUK')}${cell('aged75plus')}
+      ${cell('aged0to14')}${cell('ownsOutright')}${cell('lgbplus')}
+    </div>`;
+}
+
+function selectMetric(key) {
+  selectedMetric = key;
+  renderTabs(); renderMap(); renderBarChart();
+}
+function selectWard(i) {
+  selectedWard = selectedWard===i ? null : i;
+  renderMap(); renderBarChart(); renderWardInfo();
+}
+
+renderTabs(); renderMap(); renderBarChart(); renderWardInfo();
+</script>
+
+
+</body></html>
